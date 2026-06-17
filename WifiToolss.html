@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WiFi Toolss • Dimsz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        /* ================================================================
+           RESET & ROOT
+           ================================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-deep: #0a0815;
+            --bg-card: rgba(18, 14, 35, 0.65);
+            --border-glow: rgba(180, 100, 255, 0.2);
+            --text-white: #f0edff;
+            --text-soft: rgba(255, 255, 255, 0.5);
+            --text-dim: rgba(255, 255, 255, 0.15);
+            --purple-neon: #b86aff;
+            --purple-glow: rgba(184, 106, 255, 0.25);
+            --pink-neon: #ff5fa0;
+            --cyan-neon: #5fd9ff;
+            --gold-accent: #f5c842;
+            --radius-xl: 36px;
+            --radius-md: 18px;
+            --transition: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-deep);
+            font-family: 'Space Grotesk', sans-serif;
+            padding: 20px;
+            background-image:
+                radial-gradient(ellipse at 10% 20%, rgba(184, 106, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 70%, rgba(255, 95, 160, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(95, 217, 255, 0.04) 0%, transparent 40%);
+            overflow-x: hidden;
+        }
+
+        /* ================================================================
+           PARTIKEL
+           ================================================================ */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(184, 106, 255, 0.15), transparent 70%);
+            animation: floatParticle 18s infinite alternate ease-in-out;
+        }
+
+        .particle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            top: -10%;
+            left: -5%;
+            animation-duration: 22s;
+            background: radial-gradient(circle, rgba(255, 95, 160, 0.08), transparent 70%);
+        }
+        .particle:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            bottom: -15%;
+            right: -10%;
+            animation-duration: 26s;
+            background: radial-gradient(circle, rgba(95, 217, 255, 0.06), transparent 70%);
+        }
+        .particle:nth-child(3) {
+            width: 200px;
+            height: 200px;
+            top: 40%;
+            left: 60%;
+            animation-duration: 20s;
+            background: radial-gradient(circle, rgba(184, 106, 255, 0.10), transparent 70%);
+        }
+
+        @keyframes floatParticle {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(40px, -30px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 40px) scale(0.9);
+            }
+            100% {
+                transform: translate(30px, 20px) scale(1.05);
+            }
+        }
+
+        /* ================================================================
+           CONTAINER
+           ================================================================ */
+        .app {
+            width: 100%;
+            max-width: 520px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ================================================================
+           GLASS CARD
+           ================================================================ */
+        .glass {
+            background: var(--bg-card);
+            backdrop-filter: blur(48px) saturate(1.4);
+            -webkit-backdrop-filter: blur(48px) saturate(1.4);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-xl);
+            padding: 44px 36px;
+            box-shadow:
+                0 50px 120px rgba(0, 0, 0, 0.7),
+                0 0 80px rgba(184, 106, 255, 0.04),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-xl);
+            padding: 1px;
+            background: linear-gradient(135deg, var(--purple-neon), var(--pink-neon), var(--cyan-neon), var(--purple-neon));
+            background-size: 300% 300%;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderFlow 8s infinite alternate;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
+        @keyframes borderFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* ================================================================
+           PAGE SYSTEM
+           ================================================================ */
+        .page {
+            display: none;
+            animation: fadeGlide 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+            z-index: 2;
+        }
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeGlide {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.96);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ================================================================
+           TYPOGRAPHY
+           ================================================================ */
+        .title-xl {
+            font-size: 34px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--text-white);
+            line-height: 1.05;
+        }
+
+        .title-xl .grad {
+            background: linear-gradient(135deg, var(--purple-neon), var(--pink-neon), var(--gold-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 200%;
+            animation: gradShift 6s infinite alternate;
+        }
+
+        @keyframes gradShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .sub-glow {
+            font-size: 14px;
+            color: var(--text-soft);
+            font-weight: 300;
+            letter-spacing: 0.03em;
+            margin-top: 6px;
+        }
+
+        .sub-glow .highlight {
+            color: var(--purple-neon);
+            font-weight: 500;
+            text-shadow: 0 0 30px rgba(184, 106, 255, 0.2);
+        }
+
+        /* ================================================================
+           INPUT
+           ================================================================ */
+        .input-wrap {
+            margin-top: 28px;
+        }
+
+        .input-wrap label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-soft);
+            margin-bottom: 8px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 18px 22px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius-md);
+            color: var(--text-white);
+            font-size: 15px;
+            font-weight: 400;
+            outline: none;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .input-field:focus {
+            border-color: var(--purple-neon);
+            box-shadow: 0 0 0 5px var(--purple-glow), inset 0 0 20px rgba(184, 106, 255, 0.03);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .input-field::placeholder {
+            color: var(--text-dim);
+            font-weight: 300;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        /* ================================================================
+           BUTTON NEON
+           ================================================================ */
+        .btn-neon {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--purple-neon), #9a4dff);
+            border: none;
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+            margin-top: 4px;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-neon::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent 60%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .btn-neon:hover {
+            transform: scale(1.03);
+            box-shadow: 0 10px 50px rgba(184, 106, 255, 0.35);
+        }
+
+        .btn-neon:hover::after {
+            opacity: 1;
+        }
+
+        .btn-neon:active {
+            transform: scale(0.96);
+        }
+
+        .btn-neon:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: var(--text-soft);
+            padding: 14px 36px;
+            border-radius: 60px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.12);
+            color: var(--text-white);
+        }
+
+        /* ================================================================
+           LOGIN ERROR
+           ================================================================ */
+        .error-neon {
+            color: #ff5f7a;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 16px;
+            opacity: 0;
+            transition: var(--transition);
+            font-weight: 400;
+            text-shadow: 0 0 30px rgba(255, 95, 122, 0.15);
+        }
+        .error-neon.show {
+            opacity: 1;
+        }
+
+        /* ================================================================
+           SPONSOR — FOKUS TIKTOK & INSTAGRAM
+           ================================================================ */
+        .sponsor-premium {
+            text-align: center;
+            padding: 6px 0 4px;
+        }
+
+        .sponsor-premium .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+        }
+
+        .sponsor-premium .divider span {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(184, 106, 255, 0.15), transparent);
+        }
+
+        .sponsor-premium .badge-neon {
+            display: inline-block;
+            background: rgba(184, 106, 255, 0.06);
+            border: 1px solid rgba(184, 106, 255, 0.08);
+            border-radius: 60px;
+            padding: 4px 20px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--purple-neon);
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .sponsor-premium .name-big {
+            font-size: 48px;
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            color: var(--text-white);
+        }
+
+        .sponsor-premium .name-big .glow-text {
+            background: linear-gradient(135deg, var(--purple-neon), var(--pink-neon), var(--gold-accent), var(--cyan-neon));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradShift 7s infinite alternate;
+            text-shadow: 0 0 80px rgba(184, 106, 255, 0.15);
+        }
+
+        .sponsor-premium .tagline-glow {
+            font-size: 14px;
+            color: var(--text-soft);
+            font-weight: 300;
+            margin-top: 8px;
+            letter-spacing: 0.04em;
+        }
+
+        .sponsor-premium .tagline-glow em {
+            font-style: normal;
+            color: var(--pink-neon);
+            font-weight: 500;
+            text-shadow: 0 0 30px rgba(255, 95, 160, 0.15);
+        }
+
+        /* SOCIAL — HANYA TIKTOK & INSTAGRAM, TAPI MEWAH */
+        .social-premium {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 28px 0 32px;
+        }
+
+        .social-premium a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-soft);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: var(--transition);
+            background: rgba(255, 255, 255, 0.01);
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .social-premium a .ico {
+            font-size: 22px;
+            line-height: 1;
+        }
+
+        /* TikTok — neon pink */
+        .social-premium a.tiktok:hover {
+            background: rgba(255, 95, 160, 0.08);
+            border-color: var(--pink-neon);
+            color: #fff;
+            box-shadow: 0 0 40px rgba(255, 95, 160, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .social-premium a.tiktok .ico {
+            filter: drop-shadow(0 0 8px rgba(255, 95, 160, 0.15));
+        }
+
+        /* Instagram — neon purple + gold */
+        .social-premium a.instagram:hover {
+            background: rgba(184, 106, 255, 0.08);
+            border-color: var(--purple-neon);
+            color: #fff;
+            box-shadow: 0 0 40px rgba(184, 106, 255, 0.12);
+            transform: translateY(-3px);
+        }
+
+        .social-premium a.instagram .ico {
+            filter: drop-shadow(0 0 8px rgba(184, 106, 255, 0.15));
+        }
+
+        /* ================================================================
+           RESULT BOX — DENGAN ANIMASI PENCARIAN
+           ================================================================ */
+        .result-premium {
+            margin-top: 24px;
+            padding: 18px 24px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-md);
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+            font-size: 14px;
+            color: var(--text-white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-premium::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: var(--radius-md);
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(184, 106, 255, 0.1), rgba(255, 95, 160, 0.05));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .result-premium .label {
+            color: var(--text-soft);
+            font-weight: 400;
+            margin-right: 14px;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .result-premium .value {
+            color: var(--gold-accent);
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            text-shadow: 0 0 40px rgba(245, 200, 66, 0.08);
+        }
+
+        .result-premium .empty {
+            color: var(--text-dim);
+            font-weight: 300;
+            font-style: italic;
+        }
+
+        /* ---- LOADING / SCANNING ANIMATION ---- */
+        .scanning {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .scanning .scan-text {
+            color: var(--text-soft);
+            font-size: 13px;
+            font-weight: 400;
+            letter-spacing: 0.04em;
+            animation: pulseText 1.2s infinite alternate;
+        }
+
+        @keyframes pulseText {
+            0% {
+                opacity: 0.4;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .scanning .scan-bar {
+            flex: 1;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .scanning .scan-bar .fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--purple-neon), var(--pink-neon), var(--cyan-neon));
+            border-radius: 10px;
+            animation: scanProgress 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes scanProgress {
+            0% {
+                width: 0%;
+            }
+            20% {
+                width: 15%;
+            }
+            50% {
+                width: 45%;
+            }
+            75% {
+                width: 78%;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        .scanning .scan-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .scanning .scan-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--purple-neon);
+            animation: dotBounce 1.4s infinite alternate;
+        }
+
+        .scanning .scan-dots span:nth-child(2) {
+            animation-delay: 0.3s;
+            background: var(--pink-neon);
+        }
+        .scanning .scan-dots span:nth-child(3) {
+            animation-delay: 0.6s;
+            background: var(--cyan-neon);
+        }
+
+        @keyframes dotBounce {
+            0% {
+                transform: scale(0.6);
+                opacity: 0.2;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+
+        /* ================================================================
+           FOOTER
+           ================================================================ */
+        .footer-premium {
+            margin-top: 30px;
+            padding-top: 22px;
+            border-top: 1px solid rgba(255, 255, 255, 0.02);
+            text-align: center;
+            font-size: 11px;
+            color: var(--text-dim);
+            letter-spacing: 0.06em;
+            font-weight: 300;
+        }
+
+        .footer-premium strong {
+            color: rgba(255, 255, 255, 0.12);
+            font-weight: 500;
+        }
+
+        .footer-premium .sep {
+            color: var(--purple-neon);
+            opacity: 0.2;
+            margin: 0 6px;
+        }
+
+        /* ================================================================
+           RESPONSIVE
+           ================================================================ */
+        @media (max-width: 480px) {
+            .glass {
+                padding: 30px 20px;
+                border-radius: 30px;
+            }
+            .sponsor-premium .name-big {
+                font-size: 36px;
+            }
+            .social-premium a {
+                padding: 12px 20px;
+                font-size: 13px;
+                min-width: 120px;
+            }
+            .social-premium a .ico {
+                font-size: 18px;
+            }
+            .title-xl {
+                font-size: 28px;
+            }
+            .btn-neon {
+                padding: 16px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .social-premium {
+                flex-direction: column;
+                align-items: center;
+            }
+            .social-premium a {
+                width: 100%;
+                min-width: unset;
+            }
+            .glass {
+                padding: 22px 14px;
+                border-radius: 24px;
+            }
+            .title-xl {
+                font-size: 24px;
+            }
+            .sponsor-premium .name-big {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== PARTIKEL ===== -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <!-- ===== APP ===== -->
+    <div class="app" id="app">
+
+        <div class="glass">
+
+            <!-- ====== PAGE 1 : LOGIN ====== -->
+            <div class="page active" id="pageLogin">
+                <div class="title-xl">🔐 <span class="grad">WiFi</span> Toolss🔐</div>
+                <div class="sub-glow">Akses Username • <span class="highlight">Masukkan Username dan password</span></div>
+
+                <div class="input-wrap">
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input class="input-field" type="text" id="loginUser" placeholder="Masukkan username" />
+                    </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input class="input-field" type="password" id="loginPass" placeholder="Masukkan password" />
+                    </div>
+                </div>
+
+                <button class="btn-neon" id="loginBtn">✦ Masuk ke Toolss</button>
+                <div class="error-neon" id="loginError">⚠️ Username atau password salah</div>
+            </div>
+
+            <!-- ====== PAGE 2 : SPONSOR (TIKTOK & INSTAGRAM) ====== -->
+            <div class="page" id="pageSponsor">
+                <div class="sponsor-premium">
+                    <div class="divider"><span></span> ✦ <span></span></div>
+                    <div class="badge-neon">⭐ Exclusive Sponsor</div>
+
+                    <div class="name-big">
+                        <span class="glow-text">Dimsz</span>
+                    </div>
+                    <div class="tagline-glow">
+                        Sang Pencipta · <em>Tanpa Batasan</em> · Tahun 3480
+                    </div>
+
+                    <!-- HANYA TIKTOK & INSTAGRAM -->
+                    <div class="social-premium">
+                        <a href="#" target="_blank" class="tiktok">
+                            <span class="ico">🎵</span> TikTok
+                        </a>
+                        <a href="#" target="_blank" class="instagram">
+                            <span class="ico">📸</span> Instagram
+                        </a>
+                    </div>
+
+                    <button class="btn-outline" id="skipSponsor">Lewati →</button>
+                </div>
+            </div>
+
+            <!-- ====== PAGE 3 : MAIN TOOL ====== -->
+            <div class="page" id="pageTool">
+                <div class="title-xl">📶 <span class="grad">Cari</span> Password</div>
+                <div class="sub-glow">Masukkan SSID WiFi, <span class="highlight">rahasia terungkap</span></div>
+
+                <div class="input-wrap">
+                    <div class="input-group">
+                        <label>Nama WiFi (SSID)</label>
+                        <input class="input-field" type="text" id="wifiInput" placeholder="Contoh: WiFi_Kantor" />
+                    </div>
+                </div>
+
+                <button class="btn-neon" id="revealBtn">🔍 Lihat Password</button>
+
+                <div class="result-premium" id="resultBox">
+                    <span class="label">Password</span>
+                    <span class="empty">— masukkan SSID di atas —</span>
+                </div>
+
+                <div class="footer-premium">
+                    <strong>Toolss</strong> <span class="sep">•</span> created by Dimsz <span class="sep">•</span> no limits
+                </div>
+            </div>
+
+        </div>
+        <!-- end glass -->
+
+    </div>
+    <!-- end app -->
+
+    <script>
+        // ================================================================
+        //  KONFIGURASI LOGIN
+        // ================================================================
+        const VALID_USER = "AdminGanteng";
+        const VALID_PASS = "ToolssWifi";
+
+        // ================================================================
+        //  DATABASE WIFI
+        // ================================================================
+        const wifiDB = {
+            "InsyaAllah": "Bella1212",
+            "BANANA": "Rum4hK3r3n",
+            "wifi_cafe": "C4feBebas",
+            "wifi_sekolah": "Sk0l4h#1",
+            "wifi_tetangga": "T3tangga123",
+            "wifi_mall": "M4ll#Free",
+            "wifi_hotel": "H0telD1am0nd",
+            "wifi_kampus": "K4mpus#1",
+            "wifi_resto": "R3sto#2024"
+        };
+
+        // ================================================================
+        //  DOM
+        // ================================================================
+        const pageLogin = document.getElementById('pageLogin');
+        const pageSponsor = document.getElementById('pageSponsor');
+        const pageTool = document.getElementById('pageTool');
+
+        const loginUser = document.getElementById('loginUser');
+        const loginPass = document.getElementById('loginPass');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+
+        const skipSponsor = document.getElementById('skipSponsor');
+
+        const wifiInput = document.getElementById('wifiInput');
+        const revealBtn = document.getElementById('revealBtn');
+        const resultBox = document.getElementById('resultBox');
+
+        function goTo(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // ===== LOGIN =====
+        loginBtn.addEventListener('click', function() {
+            const u = loginUser.value.trim();
+            const p = loginPass.value.trim();
+
+            if (u === VALID_USER && p === VALID_PASS) {
+                loginError.classList.remove('show');
+                goTo('pageSponsor');
+            } else {
+                loginError.classList.add('show');
+                loginUser.value = '';
+                loginPass.value = '';
+                loginUser.focus();
+            }
+        });
+
+        loginPass.addEventListener('keydown', e => { if (e.key === 'Enter') loginBtn.click(); });
+        loginUser.addEventListener('keydown', e => { if (e.key === 'Enter') loginBtn.click(); });
+
+        // ===== SKIP SPONSOR =====
+        skipSponsor.addEventListener('click', function() {
+            goTo('pageTool');
+            wifiInput.focus();
+        });
+
+        // ================================================================
+        //  REVEAL DENGAN ANIMASI SCANNING
+        // ================================================================
+        revealBtn.addEventListener('click', function() {
+            const ssid = wifiInput.value.trim().toLowerCase();
+
+            if (ssid === '') {
+                resultBox.innerHTML = `
+                    <span class="label">Password</span>
+                    <span style="color:#ff5f7a;font-weight:400;">⚠️ isi nama WiFi dulu</span>
+                `;
+                return;
+            }
+
+            // Disable tombol selama scanning
+            revealBtn.disabled = true;
+            revealBtn.textContent = '⏳ Mencari...';
+
+            // Tampilkan animasi scanning
+            resultBox.innerHTML = `
+                <div class="scanning">
+                    <span class="scan-text">🔍 Scanning database...</span>
+                    <div class="scan-bar">
+                        <div class="fill"></div>
+                    </div>
+                    <div class="scan-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+
+            // Jalankan pencarian setelah animasi selesai (2.5 detik)
+            setTimeout(() => {
+                const found = wifiDB[ssid];
+
+                if (found) {
+                    resultBox.innerHTML = `
+                        <span class="label">Password</span>
+                        <span class="value">${found}</span>
+                    `;
+                } else {
+                    resultBox.innerHTML = `
+                        <span class="label">Password</span>
+                        <span style="color:var(--text-dim);font-weight:300;">Maaf mungkin nama wifi yang anda kasih tidak tetdukung</span>
+                    `;
+                }
+
+                // Aktifkan tombol kembali
+                revealBtn.disabled = false;
+                revealBtn.textContent = '🔍 Lihat Password';
+
+            }, 2500);
+        });
+
+        wifiInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') revealBtn.click();
+        });
+
+        loginUser.focus();
+    </script>
+
+</body>
+</html>
